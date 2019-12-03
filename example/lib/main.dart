@@ -26,7 +26,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,10 +38,13 @@ class _MyHomePageState extends State<MyHomePage> {
             return section * 3 + 1;
           },
           sectionWidget: (section) {
-            return Container(child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text('Section $section'),
-            ), color: Colors.grey,);
+            return Container(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text('Section $section'),
+              ),
+              color: Colors.grey,
+            );
           },
           rowWidget: (section, row) {
             return Container(
@@ -52,7 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             );
           },
-        )
-    );
+        ));
   }
 }
