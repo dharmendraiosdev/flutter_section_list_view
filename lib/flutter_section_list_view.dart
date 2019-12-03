@@ -10,8 +10,10 @@ class FlutterSectionListView extends StatefulWidget {
   FlutterSectionListView(
       {
         this.numberOfSection = 0,
+        @required
         this.numberOfRowsInSection,
         this.sectionWidget,
+        @required
         this.rowWidget,
       }
       ) : assert(!(numberOfRowsInSection == null || rowWidget == null), 'numberOfRowsInSection and rowWidget are mandatory');
