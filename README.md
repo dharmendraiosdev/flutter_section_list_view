@@ -42,3 +42,23 @@ FlutterSectionListView(
       )
 
 ```
+
+To use Pull-To-Refresh feature, simply provide value to attribute 'refresh', a callback function
+
+```dart
+listView.refresh = () async {
+      await new Future.delayed(new Duration(seconds: 3));
+      print('List Refreshed');
+    };
+```
+
+For Pagination feature, provide value to attribute 'loadMoreData', a callback function
+
+```dart
+listView.loadMoreData = () async {
+      await new Future.delayed(new Duration(seconds: 2));
+      print('More Data loaded and List refreshed');
+      /// set 'isMoreAvailable' attribute to 'false' when there are no more pages to return 
+      listView.isMoreAvailable = false;
+    };
+```

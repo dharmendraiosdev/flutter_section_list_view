@@ -32,7 +32,6 @@ class FlutterSectionListView extends StatefulWidget {
   final RowsWidgetCallBack rowWidget;
 
   /// A callback method used to load more data when listview reached to end.
-  /// It returns bool value which is used for next page loading.
   LoadMoreData loadMoreData;
 
   /// Return false when there are no more pages to return
