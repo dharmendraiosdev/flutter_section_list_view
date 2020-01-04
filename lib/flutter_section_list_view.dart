@@ -1,14 +1,16 @@
 library flutter_section_list_view;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 typedef int NumberOfRowsCallBack(int section);
+typedef int NumberOfSectionCallBack();
 typedef Widget SectionWidgetCallBack(int section);
 typedef Widget RowsWidgetCallBack(int section, int row);
+typedef Future<bool> LoadMoreData();
 
 class FlutterSectionListView extends StatefulWidget {
   FlutterSectionListView({
-    this.numberOfSection = 0,
+    this.numberOfSection,
     @required this.numberOfRowsInSection,
     this.sectionWidget,
     @required this.rowWidget,
@@ -16,7 +18,7 @@ class FlutterSectionListView extends StatefulWidget {
             'numberOfRowsInSection and rowWidget are mandatory');
 
   /// Defines the total number of sections
-  final int numberOfSection;
+  final NumberOfSectionCallBack numberOfSection;
 
   /// Mandatory callback method to get the rows count in each section
   final NumberOfRowsCallBack numberOfRowsInSection;
@@ -27,6 +29,10 @@ class FlutterSectionListView extends StatefulWidget {
   /// Mandatory callback method to get the row widget
   final RowsWidgetCallBack rowWidget;
 
+  LoadMoreData loadMoreData;
+
+  bool isMoreAvailable = true;
+
   @override
   _FlutterSectionListViewState createState() => _FlutterSectionListViewState();
 }
@@ -34,22 +40,72 @@ class FlutterSectionListView extends StatefulWidget {
 class _FlutterSectionListViewState extends State<FlutterSectionListView> {
   /// List of total number of rows and section in each group
   var itemList = new List<int>();
+  bool isLoading = false;
+  int itemCount = 0;
+  int sectionCount = 0;
+
+  @override
+  void initState() {
+    sectionCount = widget.numberOfSection();
+    itemCount = listItemCount();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: listItemCount(),
-      itemBuilder: (BuildContext context, int index) {
-        return buildItemWidget(index);
-      },
-      key: widget.key,
+    return listView();
+  }
+
+  Widget listView() {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (!isLoading && widget.isMoreAvailable && scrollInfo.metrics.pixels ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                if(widget.loadMoreData != null) {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  widget.loadMoreData().then((bool isLoaded) {
+                    setState(() {
+                      isLoading = false;
+                      sectionCount = widget.numberOfSection();
+                      itemCount = listItemCount();
+                    });
+                  });
+                }
+              }
+              return false;
+            },
+            child: ListView.builder(
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                return buildItemWidget(index);
+              },
+              key: widget.key,
+            ),
+          ),
+        ),
+        Container(
+          height: isLoading ? 50.0 : 0,
+          color: Colors.transparent,
+          child: Center(
+            child: new CircularProgressIndicator(),
+          ),
+        ),
+      ],
     );
   }
 
   /// Get the total count of items in list(including both row and sections)
   int listItemCount() {
+    itemList = new List<int>();
     int rowCount = 0;
-    for (int i = 0; i < widget.numberOfSection; i++) {
+
+    for (int i = 0; i < sectionCount; i++) {
       /// Get the number of rows in each section using callback
       int rows = widget.numberOfRowsInSection(i);
 
@@ -80,7 +136,7 @@ class _FlutterSectionListViewState extends State<FlutterSectionListView> {
   IndexPath sectionModel(int index) {
     int row = 0;
     int section = 0;
-    for (int i = 0; i < widget.numberOfSection; i++) {
+    for (int i = 0; i < sectionCount; i++) {
       int item = itemList[i];
       if (index < item) {
         row = index - (i > 0 ? itemList[i - 1] : 0) - 1;
