@@ -26,12 +26,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  List<List<String>> items = [['Item 1', 'Item 2', 'Item 3'], ['Item 4', 'Item 5'], ['Item 6', 'Item 7', 'Item 8', 'Item 9'], ['Item 10', 'Item 11'], ['Item 12', 'Item 13'], ['Item 14', 'Item 15', 'Item 16'], ['Item 17', 'Item 18']];
+  List<List<String>> items = [
+    ['Item 1', 'Item 2', 'Item 3'],
+    ['Item 4', 'Item 5'],
+    ['Item 6', 'Item 7', 'Item 8', 'Item 9'],
+    ['Item 10', 'Item 11'],
+    ['Item 12', 'Item 13'],
+    ['Item 14', 'Item 15', 'Item 16'],
+    ['Item 17', 'Item 18']
+  ];
 
   @override
   Widget build(BuildContext context) {
-    FlutterSectionListView listView =  FlutterSectionListView(
+    FlutterSectionListView listView = FlutterSectionListView(
       numberOfSection: () => items.length,
       numberOfRowsInSection: (section) {
         return items[section].length;
@@ -56,14 +63,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     listView.loadMoreData = () async {
-      // perform fetching data delay
       await new Future.delayed(new Duration(seconds: 2));
       items.add(['Item 19', 'Item 20']);
       items.add(['Item 21', 'Item 22', 'Item 23']);
       items.removeAt(0);
       items.insert(0, ['Item 0-1', 'Item 1-2']);
       listView.isMoreAvailable = false;
-      return true;
+    };
+
+    listView.refresh = () async {
+      await new Future.delayed(new Duration(seconds: 3));
+      items.removeAt(0);
     };
 
     return Scaffold(

@@ -6,8 +6,10 @@ typedef int NumberOfRowsCallBack(int section);
 typedef int NumberOfSectionCallBack();
 typedef Widget SectionWidgetCallBack(int section);
 typedef Widget RowsWidgetCallBack(int section, int row);
-typedef Future<bool> LoadMoreData();
+typedef Future<void> LoadMoreData();
+typedef Future<void> RefreshList();
 
+// ignore: must_be_immutable
 class FlutterSectionListView extends StatefulWidget {
   FlutterSectionListView({
     this.numberOfSection,
@@ -29,9 +31,15 @@ class FlutterSectionListView extends StatefulWidget {
   /// Mandatory callback method to get the row widget
   final RowsWidgetCallBack rowWidget;
 
+  /// A callback method used to load more data when listview reached to end.
+  /// It returns bool value which is used for next page loading.
   LoadMoreData loadMoreData;
 
+  /// Return false when there are no more pages to return
   bool isMoreAvailable = true;
+
+  /// Handle this callback when need pull to refresh.
+  RefreshList refresh;
 
   @override
   _FlutterSectionListViewState createState() => _FlutterSectionListViewState();
@@ -43,6 +51,8 @@ class _FlutterSectionListViewState extends State<FlutterSectionListView> {
   bool isLoading = false;
   int itemCount = 0;
   int sectionCount = 0;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      new GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -51,9 +61,23 @@ class _FlutterSectionListViewState extends State<FlutterSectionListView> {
     super.initState();
   }
 
+  Future<void> refreshList() async {
+    await widget.refresh().whenComplete(() {
+      setState(() {
+        sectionCount = widget.numberOfSection();
+        itemCount = listItemCount();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return listView();
+    if (widget.refresh != null) {
+      return RefreshIndicator(
+          key: _refreshIndicatorKey, onRefresh: refreshList, child: listView());
+    } else {
+      return listView();
+    }
   }
 
   Widget listView() {
@@ -62,14 +86,16 @@ class _FlutterSectionListViewState extends State<FlutterSectionListView> {
         Expanded(
           child: NotificationListener<ScrollNotification>(
             onNotification: (ScrollNotification scrollInfo) {
-              if (!isLoading && widget.isMoreAvailable && scrollInfo.metrics.pixels ==
-                  scrollInfo.metrics.maxScrollExtent) {
-                if(widget.loadMoreData != null) {
+              if (!isLoading &&
+                  widget.isMoreAvailable &&
+                  scrollInfo.metrics.pixels ==
+                      scrollInfo.metrics.maxScrollExtent) {
+                if (widget.loadMoreData != null) {
                   setState(() {
                     isLoading = true;
                   });
-
-                  widget.loadMoreData().then((bool isLoaded) {
+                  final Future<void> loadMoreResult = widget.loadMoreData();
+                  loadMoreResult.whenComplete(() {
                     setState(() {
                       isLoading = false;
                       sectionCount = widget.numberOfSection();
