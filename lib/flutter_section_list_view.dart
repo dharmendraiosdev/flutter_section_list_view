@@ -33,7 +33,7 @@ class FlutterSectionListView extends StatefulWidget {
   final RowsWidgetCallBack rowWidget;
   
   /// [ScrollPhysics] provided by that behavior will take precedence after[physics]
-  final ScrollPhysics? physics;
+  final ScrollPhysics physics;
 
   /// A callback method used to load more data when listview reached to end.
   LoadMoreData loadMoreData;
