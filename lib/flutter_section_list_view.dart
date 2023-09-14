@@ -15,6 +15,7 @@ class FlutterSectionListView extends StatefulWidget {
     this.numberOfSection,
     @required this.numberOfRowsInSection,
     this.sectionWidget,
+    this.physics,
     @required this.rowWidget,
   }) : assert(!(numberOfRowsInSection == null || rowWidget == null),
             'numberOfRowsInSection and rowWidget are mandatory');
@@ -30,6 +31,9 @@ class FlutterSectionListView extends StatefulWidget {
 
   /// Mandatory callback method to get the row widget
   final RowsWidgetCallBack rowWidget;
+  
+  /// [ScrollPhysics] provided by that behavior will take precedence after[physics]
+  final ScrollPhysics? physics;
 
   /// A callback method used to load more data when listview reached to end.
   LoadMoreData loadMoreData;
@@ -111,6 +115,7 @@ class _FlutterSectionListViewState extends State<FlutterSectionListView> {
                 return buildItemWidget(index);
               },
               key: widget.key,
+              physics: widget.physics,
             ),
           ),
         ),
