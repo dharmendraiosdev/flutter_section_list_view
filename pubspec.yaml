@@ -1,11 +1,11 @@
 name: flutter_section_list_view
 description: An extended flutter listView to support sections like iOS UITableView
-version: 1.0.0
+version: 1.0.0+1
 author: Dharmendra Singh Yadav <dsyadav.glaitm@gmail.com>
 homepage: https://github.com/dharmendraiosdev/flutter_section_list_view
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=3.0.6 <4.0.0'
 
 dependencies:
   flutter:
